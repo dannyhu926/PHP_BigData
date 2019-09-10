@@ -1,27 +1,41 @@
 <?php
-/**
- * PrestoClient
- * presto操作hive操作类.
- *
- * @author kangjun kangjun@qudian.com
- * @date   2016.08.23
- */
+
 use Xtendsys\PrestoClass;
 
 require_once './PrestoClass.php';
 
+/**
+ * Class PrestoClient
+ * presto操作hive操作类.
+ */
 class PrestoClient
 {
     protected $presto;
     protected $data;
-    protected $query_columns = [];
+    protected $queryColumns = [];
 
-    public function __construct($ip = '11.11.11.11', $port = '8411')
+    /**
+     * PrestoClient constructor.
+     *
+     * @param string $ip     IP地址或者url
+     * @param string $port   端口号
+     * @param string $schema 数据库名称
+     */
+    public function __construct($ip = '11.11.11.11', $port = '8411', $schema = 'default')
     {
-        $this->presto = new PrestoClass("$ip:$port/v1/statement", "hive");
+        $this->presto = new PrestoClass("$ip:$port/v1/statement", "hive", $schema);
     }
 
-    public function querySql($sql)
+    /**
+     *  根据sql语句返回结果.
+     *
+     * @param string $sql sql语句
+     *
+     * @return array|Exception
+     *
+     * @throws Exception
+     */
+    public function fetchAll($sql)
     {
         if (empty($sql)) {
             return [];
@@ -39,27 +53,33 @@ class PrestoClient
         return $this->processData();
     }
 
+    /**
+     * @return array
+     */
     protected function processData()
     {
         $response = [];
         $this->getQueryColumns();
 
         foreach ($this->data as $key => $datas) {
-            foreach ($datas as $colunm_key => $data) {
-                $response[$key][$this->query_columns[$colunm_key]] = $data;
+            foreach ($datas as $colunmKey => $data) {
+                $response[$key][$this->queryColumns[$colunmKey]] = $data;
             }
         }
 
         return $response;
     }
 
+    /**
+     * @return bool
+     */
     protected function getQueryColumns()
     {
-        $result_json = $this->presto->GetResult();
-        $result = json_decode($result_json, true);
+        $resultJson = $this->presto->GetResult();
+        $result = json_decode($resultJson, true);
         $columns = $result['columns'];
         foreach ($columns as $col) {
-            $this->query_columns[] = $col['name'];
+            $this->queryColumns[] = $col['name'];
         }
 
         return true;
@@ -67,6 +87,7 @@ class PrestoClient
 }
 
 $presto = new PrestoClient();
-$data = $presto->querySql('show tables'); //from 库名.表名
+$data = $presto->fetchAll('show tables'); //from 库名.表名
+echo "<pre>";
 var_dump($data);
 die();
