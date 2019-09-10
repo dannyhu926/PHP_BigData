@@ -21,8 +21,10 @@ namespace Xtendsys;
 
 class PrestoClass
 {
+    public $httpError;
+    public $data = array();
     /**
-     * The following parameters may be modified depending on your configuration
+     * The following parameters may be modified depending on your configuration.
      */
     private $source = 'PhpPrestoClient';
     private $version = '0.2';
@@ -42,13 +44,8 @@ class PrestoClass
     private $result;
     private $request;
 
-
-    public $http_error;
-    public $data = array();
-
-
     /**
-     * Constructs the presto connection instance
+     * Constructs the presto connection instance.
      *
      * @param $connectUrl
      * @param $catalog
@@ -60,46 +57,49 @@ class PrestoClass
     }
 
     /**
-     * Return Data as an array. Check that the current status is FINISHED
+     * Return Data as an array. Check that the current status is FINISHED.
      *
      * @return array|false
      */
     public function GetData()
     {
-        if ($this->state != "FINISHED") {
+        if ("FINISHED" != $this->state) {
             return false;
         }
+
         return $this->data;
     }
 
     public function GetResult()
     {
-        if ($this->state != "FINISHED") {
+        if ("FINISHED" != $this->state) {
             return false;
         }
+
         return $this->result;
     }
 
     /**
-     * prepares the query
+     * prepares the query.
      *
-     * @param  $query
+     * @param $query
+     *
      * @return bool
+     *
      * @throws \Exception
      */
     public function Query($query)
     {
-
         $this->data = array();
         $this->userAgent = $this->source."/".$this->version;
 
         $this->request = $query;
         //check that no other queries are already running for this object
-        if ($this->state === "RUNNING") {
+        if ("RUNNING" === $this->state) {
             return false;
         }
 
-        /**
+        /*
          * check that query is completed, and that we don't start
          * a new query before the previous is finished
          */
@@ -111,7 +111,7 @@ class PrestoClass
             "X-Presto-User: ".$this->prestoUser,
             "X-Presto-Catalog: ".$this->prestoCatalog,
             "X-Presto-Schema: ".$this->prestoSchema,
-            "User-Agent: ".$this->userAgent );
+            "User-Agent: ".$this->userAgent, );
 
         $connect = \curl_init();
         \curl_setopt($connect, CURLOPT_URL, $this->url);
@@ -124,52 +124,50 @@ class PrestoClass
 
         $httpCode = \curl_getinfo($connect, CURLINFO_HTTP_CODE);
 
-        if ($httpCode != "200") {
-            $this->http_error = $httpCode;
-            throw new \Exception("HTTP ERRROR: $this->http_error");
+        if ("200" != $httpCode) {
+            $this->httpError = $httpCode;
+            throw new \Exception("HTTP ERRROR: $this->httpError");
         }
 
         //set status to RUNNING
         curl_close($connect);
         $this->state = "RUNNING";
+
         return true;
     }
 
-
     /**
-     * waits until query was executed
+     * waits until query was executed.
      *
      * @return bool
+     *
      * @throws \Exception
      */
-    function WaitQueryExec()
+    public function WaitQueryExec()
     {
         $this->GetVarFromResult();
 
         while ($this->nextUri) {
-
             usleep(500000);
             $this->result = file_get_contents($this->nextUri);
             $this->GetVarFromResult();
         }
-        if ($this->state != "FINISHED") {
+        if ("FINISHED" != $this->state) {
             throw new \Exception("Incoherent State at end of query");
         }
 
         return true;
-
     }
 
     /**
      * Provide Information on the query execution
      * The server keeps the information for 15minutes
-     * Return the raw JSON message for now
+     * Return the raw JSON message for now.
      *
      * @return string
      */
-    function GetInfo()
+    public function GetInfo()
     {
-
         $connect = \curl_init();
         \curl_setopt($connect, CURLOPT_URL, $this->infoUri);
         \curl_setopt($connect, CURLOPT_HTTPHEADER, $this->headers);
@@ -209,7 +207,7 @@ class PrestoClass
     }
 
     /**
-     * Provide a function to cancel current request if not yet finished
+     * Provide a function to cancel current request if not yet finished.
      */
     private function Cancel()
     {
@@ -224,14 +222,11 @@ class PrestoClass
 
             $httpCode = \curl_getinfo($connect, CURLINFO_HTTP_CODE);
 
-            if ($httpCode != "204") {
+            if ("204" != $httpCode) {
                 return false;
             } else {
                 return true;
             }
         }
     }
-
 }
-
-?>
