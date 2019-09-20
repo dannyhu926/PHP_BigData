@@ -71,7 +71,6 @@ class PrestoClient
             }
         }
         $this->queryColumns = [];
-
         return $response;
     }
 
