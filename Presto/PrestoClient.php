@@ -66,7 +66,8 @@ class PrestoClient
                 $response[$key][$this->queryColumns[$colunmKey]] = $data;
             }
         }
-
+        $this->queryColumns = [];
+        
         return $response;
     }
 
