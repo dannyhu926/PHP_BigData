@@ -21,9 +21,9 @@ class PrestoClient
      * @param string $port   端口号
      * @param string $schema 数据库名称
      */
-    public function __construct($ip = '11.11.11.11', $port = '8411', $schema = 'default', $user)
+    public function __construct($ip = '11.11.11.11', $port = '8411', $schema = 'default')
     {
-        $this->presto = new PrestoClass("$ip:$port/v1/statement", "hive", $schema, $user);
+        $this->presto = new PrestoClass("$ip:$port/v1/statement", "hive", $schema);
     }
 
     /**
@@ -71,6 +71,7 @@ class PrestoClient
             }
         }
         $this->queryColumns = [];
+
         return $response;
     }
 

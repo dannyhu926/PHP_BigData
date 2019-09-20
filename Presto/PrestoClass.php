@@ -50,14 +50,12 @@ class PrestoClass
      * @param $connectUrl
      * @param $catalog
      * @param $prestoSchema
-     * @param $user
      */
-    public function __construct($connectUrl, $catalog, $prestoSchema, $user)
+    public function __construct($connectUrl, $catalog, $prestoSchema)
     {
         $this->url = $connectUrl;
         $this->prestoCatalog = $catalog;
         $this->prestoSchema = $prestoSchema;
-		$this->prestoUser= $user;
     }
 
     /**
