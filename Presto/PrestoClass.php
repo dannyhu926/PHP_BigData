@@ -50,12 +50,14 @@ class PrestoClass
      * @param $connectUrl
      * @param $catalog
      * @param $prestoSchema
+     * @param $user
      */
-    public function __construct($connectUrl, $catalog, $prestoSchema)
+    public function __construct($connectUrl, $catalog, $prestoSchema, $user)
     {
         $this->url = $connectUrl;
         $this->prestoCatalog = $catalog;
         $this->prestoSchema = $prestoSchema;
+		$this->prestoUser= $user;
     }
 
     /**
@@ -72,9 +74,9 @@ class PrestoClass
         return $this->data;
     }
 
-    public function GetResult()
+    public function GetResult($skipError = true)
     {
-        if ("FINISHED" != $this->state) {
+        if ("FINISHED" != $this->state && $skipError) {
             return false;
         }
 

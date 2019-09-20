@@ -21,9 +21,9 @@ class PrestoClient
      * @param string $port   端口号
      * @param string $schema 数据库名称
      */
-    public function __construct($ip = '11.11.11.11', $port = '8411', $schema = 'default')
+    public function __construct($ip = '11.11.11.11', $port = '8411', $schema = 'default', $user)
     {
-        $this->presto = new PrestoClass("$ip:$port/v1/statement", "hive", $schema);
+        $this->presto = new PrestoClass("$ip:$port/v1/statement", "hive", $schema, $user);
     }
 
     /**
@@ -46,8 +46,12 @@ class PrestoClient
         } catch (\Exception $e) {
             return $e;
         }
+        try {
+            $this->presto->WaitQueryExec();
 
-        $this->presto->WaitQueryExec();
+        } catch (\Exception $e) {
+            return $this->presto->GetResult(false);
+        }
         $this->data = $this->presto->GetData();
 
         return $this->processData();
@@ -66,6 +70,7 @@ class PrestoClient
                 $response[$key][$this->queryColumns[$colunmKey]] = $data;
             }
         }
+        $this->queryColumns = [];
 
         return $response;
     }
@@ -85,9 +90,3 @@ class PrestoClient
         return true;
     }
 }
-
-$presto = new PrestoClient();
-$data = $presto->fetchAll('show tables'); //from 库名.表名
-echo "<pre>";
-var_dump($data);
-die();
