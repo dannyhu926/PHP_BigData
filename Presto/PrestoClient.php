@@ -57,6 +57,17 @@ class PrestoClient
         return $this->processData();
     }
 
+    public function fetchRow($sql)
+    {
+        $result = [];
+        $list = $this->fetchAll($sql);
+        if (is_array($list) && $list) {
+            $result = $list['0'];
+        }
+
+        return $result;
+    }
+
     /**
      * @return array
      */
