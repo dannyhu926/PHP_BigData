@@ -75,7 +75,9 @@ class PrestoClient
     {
         $response = [];
         $this->getQueryColumns();
-
+        if (empty($this->data)) {
+            $this->data = $this->presto->GetData();
+        }
         foreach ($this->data as $key => $datas) {
             foreach ($datas as $colunmKey => $data) {
                 $response[$key][$this->queryColumns[$colunmKey]] = $data;
