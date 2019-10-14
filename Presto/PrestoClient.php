@@ -83,7 +83,6 @@ class PrestoClient
                 $response[$key][$this->queryColumns[$colunmKey]] = $data;
             }
         }
-        $this->queryColumns = [];
 
         return $response;
     }
@@ -93,6 +92,7 @@ class PrestoClient
      */
     protected function getQueryColumns()
     {
+		$this->queryColumns = [];
         $resultJson = $this->presto->GetResult();
         $result = json_decode($resultJson, true);
         $columns = $result['columns'];
